@@ -1,0 +1,34 @@
+{
+  "name": "migy",
+  "version": "0.0.1",
+  "description": "Tiny migration tool for databases migrations",
+  "main": "dist/migy.js",
+  "module": "dist/migy.es.js",
+  "scripts": {
+    "build": "node esbuild",
+    "pretest": "npm run build -- --dev",
+    "test": "node test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlexxNB/migy.git"
+  },
+  "keywords": [
+    "migration",
+    "mysql",
+    "db",
+    "database",
+    "versioning"
+  ],
+  "author": "Alexey Schebelev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AlexxNB/migy/issues"
+  },
+  "homepage": "https://github.com/AlexxNB/migy#readme",
+  "devDependencies": {
+    "esbuild": "^0.13.3",
+    "md5": "^2.3.0",
+    "sqlite3": "^5.0.2"
+  }
+}
