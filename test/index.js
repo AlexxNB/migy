@@ -7,6 +7,7 @@ migy.init({
     db,
     adapter: 'sqlite3',
     dir:'test/migrations'
-}).then( async ({status}) => {
-    console.log(await status());
+}).then( async ({migrate,rollback}) => {
+    await migrate();
+   // await rollback(1);
 });

@@ -4,14 +4,14 @@ export default function(options){
     const store = options.store || '_migrations';
 
     const conn = {
-        execute: (query,params)=>Promise((ok,fail)=>{
+        execute: (query,params)=>new Promise((ok,fail)=>{
             options.db.run(query,params, err =>{
                 if(err) return fail(err);
                 return ok();
             })
         }),
 
-        query: (query,params)=>Promise((ok,fail)=>{
+        query: (query,params)=>new Promise((ok,fail)=>{
             options.db.all(query,params, (err,result) =>{
                 if(err) return fail(err);
                 return ok(result);
@@ -25,7 +25,7 @@ export default function(options){
             for(let query of queries){
                 await conn.execute(query);
             }
-            await conn.execute(`INSERT INTO ${store} (id,md5,data) VALUES (?,?)`,[id,md5,data]);
+            await conn.execute(`INSERT INTO ${store} (id,md5,data) VALUES (?,?,?)`,[id,md5,data]);
         },
 
         /** execute DOWN query */
@@ -41,7 +41,7 @@ export default function(options){
             await conn.execute(`
                 CREATE TABLE IF NOT EXISTS ${store} (
                     id INTEGER PRIMARY KEY,
-                    md5 TEXT
+                    md5 TEXT,
                     data TEXT
                 );
            `);
