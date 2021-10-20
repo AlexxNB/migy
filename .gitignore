@@ -1,4 +1,4 @@
 node_modules
 dist
-test/testdb.sqlite
-test/restored_migrations
+test/**/testdb.sqlite
+test/**/restored_migrations

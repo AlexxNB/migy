@@ -1,16 +1,13 @@
-const migy = require('./../dist/migy');
-const sqlite3 = require('sqlite3');
+const SQLite3 = require('./sqlite');
 
-const db = new sqlite3.Database('test/testdb.sqlite');
+const cmd = process.argv[2];
 
-migy.init({
-    db,
-    adapter: 'sqlite3',
-    dir:'test/migrations'
-}).then( async ({migrate,rollback,restore}) => {
-    // await migrate();
-   // await rollback(1);
-   await restore({
-       dir: 'test/restored_migrations'
-   });
-});
+if(cmd){
+    run(cmd);
+}else{
+    SQLite3.run();
+}
+
+function run(name){
+    if(cmd == 'sqlite') return SQLite3.run();
+}

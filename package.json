@@ -7,7 +7,7 @@
   "scripts": {
     "build": "node esbuild",
     "pretest": "npm run build -- --dev",
-    "test": "node test"
+    "test": "node test/sqlite"
   },
   "repository": {
     "type": "git",
@@ -29,6 +29,7 @@
   "devDependencies": {
     "esbuild": "^0.13.3",
     "md5": "^2.3.0",
-    "sqlite3": "^5.0.2"
+    "sqlite3": "^5.0.2",
+    "uvu": "^0.5.2"
   }
 }
