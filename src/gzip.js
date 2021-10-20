@@ -9,7 +9,7 @@ export function compress(string){
 }
 
 export function decompress(string){
-    return new Promise((resolve,reject)=>gunzip(Buffer.from(Buffer.from(s, 'base64')),(err,decompressed)=>{
+    return new Promise((resolve,reject)=>gunzip(Buffer.from(Buffer.from(string, 'base64')),(err,decompressed)=>{
         if(err) return reject(err);
         resolve(decompressed.toString());
     }));

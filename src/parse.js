@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import md5 from 'md5';
-import {compress} from './gzip';
+import {compress,decompress} from './gzip';
 
 export async function parseSQLMigrations(dir,options){
 
@@ -46,4 +46,13 @@ export async function parseSQLMigrations(dir,options){
     }
 
     return result.sort((mA,mB)=>(mA.id-mB.id));
+}
+
+export async function saveMigration(dir,data){
+    fs.mkdir(dir,{recursive: true});
+    const body = await decompress(data);
+    const parts = body.match(/^\/\*File:(.+)\*\/\n([\s\S]+)$/);
+    if(!parts) throw Error('Data is invalid');
+    fs.writeFile(path.join(dir,parts[1]),parts[2]);
+    return parts[1];
 }

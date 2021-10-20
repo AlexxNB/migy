@@ -1,5 +1,5 @@
 import {isFunc,isStr} from './helpers';
-import {parseSQLMigrations} from './parse';
+import {parseSQLMigrations,saveMigration} from './parse';
 import adapters from './modules';
 
 export async function init(options){
@@ -44,9 +44,9 @@ export async function init(options){
                 for(let migration of list){
                     try{
                         await adapter.up(migration);
-                        console.log(` - ${migration.id}: OK`);
+                        console.log(` - v.${migration.id}: OK`);
                     }catch(err){
-                        console.log(` - ${migration.id}: (!) Fail: ${err.message}`);
+                        console.log(` - v.${migration.id}: (!) Fail: ${err.message}`);
                         return console.log(`Migration aborted!`);
                     }
                 }
@@ -85,13 +85,34 @@ export async function init(options){
             for(let migration of list){
                 try{
                     await adapter.down(migration);
-                    console.log(` - ${migration.id}: OK`);
+                    console.log(` - v.${migration.id}: OK`);
                 }catch(err){
-                    console.log(` - ${migration.id}: (!) Fail: ${err.message}`);
+                    console.log(` - v.${migration.id}: (!) Fail: ${err.message}`);
                     return console.log(`Rollback aborted!`);
                 }
             }
             return console.log(`Rollback finished!`);
+        },
+        restore: async options =>{
+            const params = Object.assign({
+                dir: 'restored_migrations',
+                version: null,
+            },options);
+
+            const data = await loadMigrationsData(adapter,opt);
+            if(!data.applied.length) return console.log(`Database doesn't have any applied migrations. Aborted.`);
+
+            console.log('Restoring migrations from database...');
+            for(let m of data.applied){
+                const migration = await adapter.get(m.id);
+                try{
+                    const file = await saveMigration(params.dir,migration.data);
+                    console.log(` - v.${migration.id}: ${file} - OK`);
+                }catch(err){
+                    console.log(` - v.${migration.id}: (!) Fail: ${err.message}`);
+                }
+            }
+            return console.log(`Restoration finished!`);
         }
     }
 }
