@@ -7,7 +7,7 @@
   "scripts": {
     "build": "node esbuild",
     "pretest": "npm run build -- --dev",
-    "test": "node test/sqlite"
+    "test": "docker run --rm -it $(docker build -q --force-rm -f test/Dockerfile .)"
   },
   "repository": {
     "type": "git",
@@ -28,8 +28,6 @@
   "homepage": "https://github.com/AlexxNB/migy#readme",
   "devDependencies": {
     "esbuild": "^0.13.3",
-    "md5": "^2.3.0",
-    "sqlite3": "^5.0.2",
-    "uvu": "^0.5.2"
+    "md5": "^2.3.0"
   }
 }
