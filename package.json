@@ -7,7 +7,7 @@
   "scripts": {
     "build": "node esbuild",
     "pretest": "npm run build -- --dev",
-    "test": "docker run --rm -it $(docker build -q --force-rm -f test/Dockerfile .)"
+    "test": "docker compose -f test/docker-compose.yml up --force-recreate"
   },
   "repository": {
     "type": "git",
