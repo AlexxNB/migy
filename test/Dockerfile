@@ -1,11 +1,7 @@
 FROM node:16-alpine
 
-COPY dist /app/dist
-COPY test /app/test
-
 WORKDIR /app
 
-RUN npm init -y \
- && npm i -D sqlite3 uvu
+RUN npm init -y && npm i -D wait-port uvu sqlite3 mysql2 
 
-CMD [ "node", "test" ]
+CMD [ "node","test" ]

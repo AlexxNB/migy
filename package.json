@@ -6,8 +6,9 @@
   "module": "dist/migy.es.js",
   "scripts": {
     "build": "node esbuild",
-    "pretest": "npm run build -- --dev",
-    "test": "docker compose -f test/docker-compose.yml up --force-recreate"
+    "test": "npm run build && docker-compose -f test/docker-compose.yml up --force-recreate",
+    "test:sqlite": "npm run build -- --dev && export MODULE=sqlite && docker-compose -f test/docker-compose.yml up --abort-on-container-exit test",
+    "test:mysql": "npm run build -- --dev && export MODULE=mysql && docker-compose -f test/docker-compose.yml up --abort-on-container-exit  test mysql"
   },
   "repository": {
     "type": "git",

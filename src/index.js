@@ -37,7 +37,7 @@ export async function init(options){
                 try{
                     await adapter.init();
                 }catch(err){
-                    console.log(`Migration store preparation fails.`);
+                    console.log(`Migration store preparation fails. Error: ${err}`);
                     return console.log(`Migration aborted!`);
                 }
 

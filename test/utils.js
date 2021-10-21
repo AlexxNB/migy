@@ -26,4 +26,13 @@ exports.loadFile = async function(filename){
     return await fs.readFile(filename,'utf8');
 }
 
+exports.exitOnThrow = async function(fn){
+    try{
+        await fn();
+    }catch(err){
+        console.log(err);
+        process.exit(1);
+    }
+}
+
 exports.join = path.join;

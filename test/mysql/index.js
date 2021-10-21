@@ -1,96 +1,106 @@
 const migy = require('./../../dist/migy');
-const sqlite3 = require('sqlite3');
+const mysql = require('mysql2/promise');
 const { test,suite } = require('uvu');
 const {ok,fixture} = require('uvu/assert');
 const utils = require('../utils');
+const waitPort = require('wait-port');
 
 // Params for testing
 const PARAMS = {
-    dbname: '/tmp/testdb.sqlite',
-    migrations_dir: 'test/sqlite/migrations',
+    host: 'mysql',
+    port: 3306,
+    user: 'test',
+    password: 'test',
+    database: 'test',
+    migrations_dir: 'test/mysql/migrations',
     restored_dir: '/tmp/restored_migrations',
 }
 
-const SQLite3 = suite('SQLite3');
+const MySQL = suite('MySQL');
 
 // Setup
-SQLite3.before( async ctx => {
-    // Init SQLite connection
-    ctx.db = new sqlite3.Database(PARAMS.dbname);
+MySQL.before( async ctx => {
+    try{
+        // Wait when DB will be available
+        await waitPort({
+            host: PARAMS.host, 
+            port: PARAMS.port
+        })
 
-    // Promisify methods
-    ctx.conn = {
-        execute: (query,params)=>new Promise((ok,fail)=>{
-            ctx.db.run(query,params, err =>{
-                if(err) return fail(err);
-                return ok();
-            })
-        }),
+        // Open DB connection
+        const conn = await mysql.createConnection({
+            host: PARAMS.host, 
+            port: PARAMS.port, 
+            user: PARAMS.user, 
+            password: PARAMS.password, 
+            database: PARAMS.database
+        });
 
-        query: (query,params)=>new Promise((ok,fail)=>{
-            ctx.db.all(query,params, (err,result) =>{
-                if(err) return fail(err);
-                return ok(result);
-            })
-        }),
+        ctx.conn = {
+            query: async (query,params)=>(await conn.query(query,params))[0],
+            end: async ()=>conn.end()
+        }
+
+        // Init migy
+        ctx.migy = await migy.init({
+            db: conn,
+            adapter: 'mysql',
+            dir:PARAMS.migrations_dir
+        });
+        
+
+        // Read migrations filenames
+        ctx.migrations = (await utils.listDir(PARAMS.migrations_dir)).filter(m => m.endsWith('.sql'));
+    }catch(err){
+        console.log(err);
+        process.exit(1);
     }
-
-    // Init migy
-    ctx.migy = await migy.init({
-        db: ctx.db,
-        adapter: 'sqlite3',
-        dir:PARAMS.migrations_dir
-    });
-
-    // Read migrations filenames
-    ctx.migrations = (await utils.listDir(PARAMS.migrations_dir)).filter(m => m.endsWith('.sql'));
 });
 
 //Cleanup
-SQLite3.after( async ctx => {
-    await ctx.db.close();
-    await utils.rmFile(PARAMS.dbname);
-    await utils.rmDir(PARAMS.restored_dir)
+MySQL.after( async ctx => {
+    ctx.conn.end();
+   // await utils.rmDir(PARAMS.restored_dir)
 });
 
 
 // Tests
 
-SQLite3('Database connection works',async ctx => {
+MySQL('Database created',async ctx => {
     ok(ctx.conn.query("SELECT 1"),'Test query to DB');
 });
 
-SQLite3('Migy initialized', ctx =>{
+MySQL('Migy initialized', ctx =>{
     ok(!!ctx.migy.migrate,  'Method migrate exists');
     ok(!!ctx.migy.rollback, 'Method rollback exists');
     ok(!!ctx.migy.restore,  'Method restore exists');
 })
 
-SQLite3('Migrations list created', ctx =>{
+MySQL('Migrations list created', ctx =>{
     ok(!!ctx.migrations.length,  'List has items');
 })
 
-SQLite3('Migrate to latest', async ctx =>{
+MySQL('Migrate to latest', async ctx =>{
     await ctx.migy.migrate();
     const row = await ctx.conn.query("SELECT * FROM things");
     ok(row[0].thing == 'pineapple','Seed added');
     ok(row[0].count == 1,'Column created');
 })
 
-SQLite3('Rollback', async ctx =>{
+MySQL('Rollback', async ctx =>{
     await ctx.migy.rollback(2);
     const row = await ctx.conn.query("SELECT * FROM things");
     ok(row[0].count === undefined,'Column is not exists');
 })
 
-SQLite3('Migrate to latest', async ctx =>{
+MySQL('Migrate to latest', async ctx =>{
     await ctx.migy.migrate();
     const row = await ctx.conn.query("SELECT * FROM things");
     ok(row[0].thing == 'pineapple','Seed added');
     ok(row[0].count == 1,'Column created');
 })
 
-SQLite3('Restoration', async ctx =>{
+MySQL('Restoration', async ctx =>{
     await ctx.migy.restore({
         dir: PARAMS.restored_dir
     });
@@ -108,4 +118,4 @@ SQLite3('Restoration', async ctx =>{
     }
 })
 
-module.exports = SQLite3;
+module.exports = MySQL;

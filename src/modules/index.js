@@ -1,5 +1,10 @@
-import sqlite3 from './sqlite3';
+import sqlite from './sqlite';
+import mysql from './mysql';
 
 export default {
-    sqlite3
+    'sqlite':sqlite,
+    'sqlite3':sqlite,
+    'mysql': mysql,
+    'mariadb': mysql,
+    'mysql2': mysql
 }
