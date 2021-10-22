@@ -1,11 +1,13 @@
-/** MySQL DB migration using mysql2 module */
+/** Postgres DB migration using pg,pg-promise modules */
 export default function(options){
 
     const store = options.store || '_migrations';
-
+  
     if(!options.db || !options.db.query) throw Error('Wrong db option.');
 
-    const conn = universalConnection(options.db);
+    const conn = {
+        query: async (query,params)=>(await options.db.query(query,params)).rows,
+    }
 
     return {
         /** execute UP query */
@@ -13,7 +15,7 @@ export default function(options){
             for(let query of queries){
                 await conn.query(query);
             }
-            await conn.query(`INSERT INTO ${store} (id,md5,data) VALUES (?,?,?)`,[id,md5,data]);
+            await conn.query(`INSERT INTO ${store} (id,md5,data) VALUES ($1,$2,$3)`,[id,md5,data]);
         },
 
         /** execute DOWN query */
@@ -21,7 +23,7 @@ export default function(options){
             for(let query of queries){
                 await conn.query(query);
             }
-            await conn.query(`DELETE FROM ${store} WHERE id=?`,[id]);
+            await conn.query(`DELETE FROM ${store} WHERE id=$1`,[id]);
         },
 
         /** prepare store */
@@ -49,27 +51,8 @@ export default function(options){
 
         /** Return migration object by id {id,md5,data} */
         get: async (id) => {
-            const result = await conn.query(`
-                SELECT * FROM ${store} WHERE id=?;
-            `,[id]);
+            const result = await conn.query(`SELECT * FROM ${store} WHERE id=$1;`,[id]);
             return result.length ? result[0] : null;
         }
-    }
-}
-
-function universalConnection(conn){
-    // Mysql2 Promise Connection
-    if(conn.constructor.name  == 'PromiseConnection') return {
-        query: async (query,params)=>(await conn.query(query,params))[0],
-    }
-
-    // Common connection with callback
-    return {
-        query: (query,params)=>new Promise((ok,fail)=>{
-            conn.query(query,params, (err,result) =>{
-                if(err) return fail(err);
-                return ok(result);
-            })
-        }),
     }
 }

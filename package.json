@@ -1,14 +1,20 @@
 {
   "name": "migy",
   "version": "0.0.1",
-  "description": "Tiny migration tool for databases migrations",
+  "description": "Easy migration tool for databases",
   "main": "dist/migy.js",
   "module": "dist/migy.es.js",
   "scripts": {
     "build": "node esbuild",
-    "test": "npm run build && docker-compose -f test/docker-compose.yml up --force-recreate",
-    "test:sqlite": "npm run build -- --dev && export MODULE=sqlite && docker-compose -f test/docker-compose.yml up --abort-on-container-exit test",
-    "test:mysql": "npm run build -- --dev && export MODULE=mysql && docker-compose -f test/docker-compose.yml up --abort-on-container-exit  test mysql"
+
+    "pretest": "npm run build -- --dev",
+    "test": "npm run test:clear && docker-compose -f test/docker-compose.yml up --force-recreate --abort-on-container-exit",
+    "test:build": "docker-compose -f test/docker-compose.yml build test",
+    "test:clear": "docker-compose -f test/docker-compose.yml rm -v -f -s",
+
+    "test:sqlite": "export MODULE=sqlite && npm run test -- test",
+    "test:mysql": "export MODULE=mysql && npm run test -- test mysql",
+    "test:postgres": "export MODULE=postgres && npm run test -- test postgres"
   },
   "repository": {
     "type": "git",

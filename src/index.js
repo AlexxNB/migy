@@ -146,7 +146,7 @@ async function loadMigrationsData(adapter,options){
 
    //load applied migrations
    const applied = await adapter.list();
-
+   
    //current DB version
    const version = applied.reduce((prev,cur)=>prev>cur.id?prev:cur.id,0);
 

@@ -8,7 +8,7 @@ const utils = require('../utils');
 const PARAMS = {
     dbname: '/tmp/testdb.sqlite',
     migrations_dir: 'test/sqlite/migrations',
-    restored_dir: '/tmp/restored_migrations',
+    restored_dir: '/tmp/sqlite_restored_migrations',
 }
 
 const SQLite3 = suite('SQLite3');

@@ -1,5 +1,6 @@
 const migy = require('./../../dist/migy');
-const mysql = require('mysql2/promise');
+const pgp = require('pg-promise')();
+const { Client } = require('pg')
 const { test,suite } = require('uvu');
 const {ok,fixture} = require('uvu/assert');
 const utils = require('../utils');
@@ -7,19 +8,19 @@ const waitPort = require('wait-port');
 
 // Params for testing
 const PARAMS = {
-    host: 'mysql',
-    port: 3306,
+    host: 'postgres',
+    port: 5432,
     user: 'test',
     password: 'test',
     database: 'test',
-    migrations_dir: 'test/mysql/migrations',
-    restored_dir: '/tmp/mysql_restored_migrations',
+    migrations_dir: 'test/postgres/migrations',
+    restored_dir: '/tmp/postgres_restored_migrations',
 }
 
-const MySQL = suite('MySQL');
+const Postgres = suite('Postgres');
 
 // Setup
-MySQL.before( async ctx => {
+Postgres.before( async ctx => {
     try{
         // Wait when DB will be available
         await waitPort({
@@ -28,23 +29,30 @@ MySQL.before( async ctx => {
         })
 
         // Open DB connection
-        const conn = await mysql.createConnection({
+        /*
+        ctx.conn = await pgp({
+            host: PARAMS.host, 
+            port: PARAMS.port, 
+            user: PARAMS.user, 
+            password: PARAMS.password, 
+            database: PARAMS.database
+        });*/
+        
+        ctx.conn = new Client({
             host: PARAMS.host, 
             port: PARAMS.port, 
             user: PARAMS.user, 
             password: PARAMS.password, 
             database: PARAMS.database
         });
+        ctx.conn.connect();
 
-        ctx.conn = {
-            query: async (query,params)=>(await conn.query(query,params))[0],
-            end: async ()=>conn.end()
-        }
+        
 
         // Init migy
         ctx.migy = await migy.init({
-            db: conn,
-            adapter: 'mysql',
+            db: ctx.conn,
+            adapter: 'pg',
             dir:PARAMS.migrations_dir
         });
         
@@ -58,49 +66,50 @@ MySQL.before( async ctx => {
 });
 
 //Cleanup
-MySQL.after( async ctx => {
-    ctx.conn.end();
+Postgres.after( async ctx => {
+   // pgp.end();
+   ctx.conn.end();
    // await utils.rmDir(PARAMS.restored_dir)
 });
 
 
 // Tests
 
-MySQL('Database created',async ctx => {
+Postgres('Database connected',async ctx => {
     ok(ctx.conn.query("SELECT 1"),'Test query to DB');
 });
 
-MySQL('Migy initialized', ctx =>{
+Postgres('Migy initialized', ctx =>{
     ok(!!ctx.migy.migrate,  'Method migrate exists');
     ok(!!ctx.migy.rollback, 'Method rollback exists');
     ok(!!ctx.migy.restore,  'Method restore exists');
 })
 
-MySQL('Migrations list created', ctx =>{
+Postgres('Migrations list created', ctx =>{
     ok(!!ctx.migrations.length,  'List has items');
 })
 
-MySQL('Migrate to latest', async ctx =>{
+Postgres('Migrate to latest', async ctx =>{
     await ctx.migy.migrate();
-    const row = await ctx.conn.query("SELECT * FROM things");
-    ok(row[0].thing == 'pineapple','Seed added');
-    ok(row[0].count == 1,'Column created');
+    const {rows} = await ctx.conn.query("SELECT * FROM things");
+    ok(rows[0].thing == 'pineapple','Seed added');
+    ok(rows[0].count == 1,'Column created');
 })
 
-MySQL('Rollback', async ctx =>{
+Postgres('Rollback', async ctx =>{
     await ctx.migy.rollback(2);
-    const row = await ctx.conn.query("SELECT * FROM things");
-    ok(row[0].count === undefined,'Column is not exists');
+    const {rows} = await ctx.conn.query("SELECT * FROM things");
+    ok(rows[0].count === undefined,'Column is not exists');
 })
 
-MySQL('Migrate to latest', async ctx =>{
+Postgres('Migrate to latest', async ctx =>{
     await ctx.migy.migrate();
-    const row = await ctx.conn.query("SELECT * FROM things");
-    ok(row[0].thing == 'pineapple','Seed added');
-    ok(row[0].count == 1,'Column created');
+    const {rows} = await ctx.conn.query("SELECT * FROM things");
+    ok(rows[0].thing == 'pineapple','Seed added');
+    ok(rows[0].count == 1,'Column created');
 })
 
-MySQL('Restoration', async ctx =>{
+Postgres('Restoration', async ctx =>{
     await ctx.migy.restore({
         dir: PARAMS.restored_dir
     });
@@ -118,4 +127,4 @@ MySQL('Restoration', async ctx =>{
     }
 })
 
-module.exports = MySQL;
+module.exports = Postgres;

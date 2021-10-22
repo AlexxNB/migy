@@ -1,10 +1,10 @@
 import sqlite from './sqlite';
 import mysql from './mysql';
+import postgres from './postgres';
 
 export default {
-    'sqlite':sqlite,
     'sqlite3':sqlite,
     'mysql': mysql,
-    'mariadb': mysql,
-    'mysql2': mysql
+    'mysql2': mysql,
+    'pg': postgres,
 }
