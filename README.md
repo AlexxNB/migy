@@ -32,7 +32,7 @@ const conn = mysql.createConnection({
             database: 'things'
 });
 
-migy.init({
+migy.cli({
     db: conn, //Connection to db
     adapter: 'mysql', //Specify what module to use
     dir: 'migrations' //Directory where stored migration files
@@ -41,7 +41,7 @@ migy.init({
 Now run this file with Node as a common CLI application.
 
 ```sh
-node migrator.js help
+node migrator.js --help
 ```
 
 ### As a part of your application
@@ -131,6 +131,12 @@ Initializing the migy instance
 - `adapter`: name of adapter of supported module, or custom adapter function.
 - `dir`: directory with migrations files. _Default: migrations_
 - `store`: string specified migration store in DB(table name in most cases). *Default: _migrations*
+
+**`migi.cli({db,adapter,dir,store})`**
+
+Run migy as standalone CLI application. Parameters are same as for `migi.init` function.
+
+---
 
 The `migi.init` asynchronus function returns an object with methods:
 

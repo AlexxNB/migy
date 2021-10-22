@@ -1,6 +1,7 @@
 import {isFunc,isStr} from './helpers';
 import {parseSQLMigrations,saveMigration} from './parse';
 import adapters from './modules';
+import { runCLI } from './cli';
 
 export async function init(options){
     const opt = Object.assign({
@@ -115,6 +116,11 @@ export async function init(options){
             return console.log(`Restoration finished!`);
         }
     }
+}
+
+export async function cli(options){
+    const methods = await init(options);
+    runCLI(methods);
 }
 
 const adapterMethods = ['init','up','down','list','get'];

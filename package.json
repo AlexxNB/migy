@@ -6,13 +6,12 @@
   "module": "dist/migy.es.js",
   "scripts": {
     "build": "node esbuild",
-
     "pretest": "npm run build -- --dev",
     "test": "npm run test:clear && docker-compose -f test/docker-compose.yml up --force-recreate --abort-on-container-exit",
     "test:build": "docker-compose -f test/docker-compose.yml build test",
     "test:clear": "docker-compose -f test/docker-compose.yml rm -v -f -s",
-
     "test:sqlite": "export MODULE=sqlite && npm run test -- test",
+    "test:cli": "export MODULE=cli && npm run test -- test",
     "test:mysql": "export MODULE=mysql && npm run test -- test mysql",
     "test:postgres": "export MODULE=postgres && npm run test -- test postgres"
   },
@@ -35,6 +34,7 @@
   "homepage": "https://github.com/AlexxNB/migy#readme",
   "devDependencies": {
     "esbuild": "^0.13.3",
-    "md5": "^2.3.0"
+    "md5": "^2.3.0",
+    "sade": "^1.7.4"
   }
 }
