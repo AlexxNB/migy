@@ -1,5 +1,6 @@
-# migy
-Easy migration tool for databases
+<p align="center">
+  <img style="margin: 15px" padding="20" src="https://raw.githubusercontent.com/AlexxNB/migy/master/MigyLogo.svg"/>
+</p>
 
 ## Why migy?
 
