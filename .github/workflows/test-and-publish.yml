@@ -1,0 +1,22 @@
+name: Publish on NPM
+
+on:
+  push:
+    paths:
+      - '.github/workflows/test-and-publish.yml'
+      - 'package.json'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+      - uses: actions/checkout@v1
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+
+      - name: Run tests
+        run: npm run test
