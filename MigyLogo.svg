@@ -7,7 +7,7 @@
    viewBox="0 0 67.733332 37.041668"
    version="1.1"
    id="svg5"
-   inkscape:version="1.1.1 (eb90963e84, 2021-10-02)"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
    sodipodi:docname="MigyLogo.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -27,12 +27,12 @@
      width="256px"
      height="140px"
      inkscape:zoom="1.4681257"
-     inkscape:cx="269.3911"
-     inkscape:cy="219.32727"
+     inkscape:cx="117.15618"
+     inkscape:cy="219.66784"
      inkscape:window-width="1920"
      inkscape:window-height="1010"
-     inkscape:window-x="0"
-     inkscape:window-y="34"
+     inkscape:window-x="1080"
+     inkscape:window-y="517"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1" />
   <defs
@@ -42,7 +42,7 @@
      inkscape:groupmode="layer"
      id="layer1">
     <ellipse
-       style="fill:#808000;stroke-width:0.152037"
+       style="fill:#2ea22e;stroke-width:0.152037;fill-opacity:1"
        id="path44694"
        cx="36.054855"
        cy="14.775983"
