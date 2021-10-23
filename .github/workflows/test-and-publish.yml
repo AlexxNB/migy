@@ -10,7 +10,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    
+
       - name: Checkout repo
         uses: actions/checkout@v1
 
@@ -19,5 +19,12 @@ jobs:
         with:
           node-version: 16
 
+      - name: Install node deps
+        run: npm install
+
       - name: Run tests
         run: npm run test
+
+      - name: Cleanup docker
+        if: always()
+        run: npm run test:clear
