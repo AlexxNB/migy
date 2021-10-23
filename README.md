@@ -4,10 +4,10 @@
 
 ## Why migy?
 
-There are many options to handle migrations of your MySQL, Postgres or SQLite databases, but migy offers cool features to made this procces easier:
+There are many options to handle migrations of your MySQL, Postgres or SQLite databases, but migy offers cool features to make this process easier:
 
 - May work as a part of your application or standalone.
-- Works with popular node databases modules and can be extended to work with any module you want.
+- Works with popular databases modules and can be extended to work with any module you want.
 - Migrations stored in *.sql files. You will have full IDE features like syntax highlighting when edit migrations.
 - Rollback migrations stored in same file with up migration.
 - Supports any count of separate queries in one migration.
@@ -35,7 +35,7 @@ const conn = mysql.createConnection({
 
 migy.cli({
     db: conn, //Connection to db
-    adapter: 'mysql', //Specify what module to use
+    adapter: 'mysql2', //Specify what module to use
     dir: 'migrations' //Directory where stored migration files
 });
 ```
@@ -124,7 +124,7 @@ DROP TABLE things;
 
 ### API
 
-**`migi.init({db,adapter,dir,store})`**
+**`migy.init({db,adapter,dir,store})`**
 
 Initializing the migy instance
 
@@ -133,13 +133,13 @@ Initializing the migy instance
 - `dir`: directory with migrations files. _Default: migrations_
 - `store`: string specified migration store in DB(table name in most cases). *Default: _migrations*
 
-**`migi.cli({db,adapter,dir,store})`**
+**`migy.cli({db,adapter,dir,store})`**
 
 Run migy as standalone CLI application. Parameters are same as for `migi.init` function.
 
 ---
 
-The `migi.init` asynchronus function returns an object with methods:
+The `migy.init` asynchronus function returns an object with methods:
 
 **`migrate()`**
 Run migration process. Checks already applied migration. Validate them with current migrations files. Run queries one by one to reach latest database version.
@@ -163,7 +163,7 @@ module.exports = async function(options){
     
     /* 
        - options.db - DB connection object or similar
-       - options.store - string specifing store of migrations
+       - options.store - string specifing store of migrations(like table name)
     */
 
     return {
