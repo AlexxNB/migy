@@ -30,15 +30,16 @@ jobs:
         run: npm run test:clear
   publish-npm:
     needs: test
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v1
 
       - name: Setup Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
-          node-version: 15
+          node-version: 16
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Installing NPM deps
         run: npm install
