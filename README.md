@@ -156,7 +156,7 @@ Extract all applied migrations from database and save them in specified director
 
 There are a couple of builtin adapters for most popular modules like `sqlite3`,`mysql`,`mysql2` and `pg`. But you can create your own adapter for any database module you want.
 
-Adapter is a function which returns object with methods which will be used my migy during migrations.
+Adapter is a function which returns object of methods - `up`,`down`,`init`,`list` and `get`. Every method is required and will be used by migy during migrations processes.
 
 ```js
 module.exports = async function(options){
@@ -167,27 +167,27 @@ module.exports = async function(options){
     */
 
     return {
-        up: async ({id,queries,md5,data}) => {
+        up: async ({version,queries,md5,data}) => {
             /* 
-                id - up migration version
+                version - migration version
                 queries - array of SQL queries
                 md5 - hash of migration 
                 data - packed migration file (may be long)
             */
 
            // Run all queries here to migrate DB up
-           // Also save id,md5 and data in your store (table)
+           // Also save version,md5 and data in your store (table)
         },
 
         
-        down: async ({id,queries}) => {
+        down: async ({version,queries}) => {
             /* 
-                id - down migration version
+                version - migration version
                 queries - array of SQL queries
             */
 
            // Run all queries here to migrate DB down
-           // Also delete entry with id=id from your store (table)
+           // Also delete entry with version=version from your store (table)
         },
 
       
@@ -199,17 +199,17 @@ module.exports = async function(options){
 
         list: async ()=>{
             // return an array of all migration here
-            // Note: don't return data here
-            // [{id,md5},...]
+            // Note: don't return data field here
+            // [{version,md5},...]
         },
 
-        /** Return migration object by id {id,md5,data} */
-        get: async (id) => {
+
+        get: async (version) => {
             /* 
-                id - needed migration version
+                version - needed migration version
             */
             // return an object of needed migration here
-            // {id,md5,data}
+            // {version,md5,data}
         }
     }
 }

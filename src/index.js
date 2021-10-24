@@ -25,7 +25,7 @@ export async function init(options){
                 const result = validate(data);
                 if(!result.valid){
                     console.log('(!) Problems found:');
-                    result.invalidMigrations.forEach( m => console.log(` - ${m.id}: ${m.error}`));
+                    result.invalidMigrations.forEach( m => console.log(` - ${m.version}: ${m.error}`));
                     return console.log("Migration aborted!");
                 }
             }
@@ -45,9 +45,9 @@ export async function init(options){
                 for(let migration of list){
                     try{
                         await adapter.up(migration);
-                        console.log(` - v.${migration.id}: OK`);
+                        console.log(` - v.${migration.version}: OK`);
                     }catch(err){
-                        console.log(` - v.${migration.id}: (!) Fail: ${err.message}`);
+                        console.log(` - v.${migration.version}: (!) Fail: ${err.message}`);
                         return console.log(`Migration aborted!`);
                     }
                 }
@@ -60,13 +60,13 @@ export async function init(options){
         rollback: async version => {
             version = Number(version);
             const data = await loadMigrationsData(adapter,opt);
-
+      
             if(data.applied.length > 0){
                 console.log('Validate applied migrations...')
                 const result = validate(data);
                 if(!result.valid){
                     console.log('(!) Problems found:');
-                    result.invalidMigrations.forEach( m => console.log(` - ${m.id}: ${m.error}`));
+                    result.invalidMigrations.forEach( m => console.log(` - ${m.version}: ${m.error}`));
                     return console.log("Rollback aborted!");
                 }
             }else{
@@ -78,17 +78,17 @@ export async function init(options){
             const list = getDownMigrations(version,data);
 
             if(!list.length) return console.log("There no any queries for rollback migrations.");
-            const finalVersion = list[list.length-1].version;
-            if(finalVersion != version) return console.log(`It is possible to rolback till version ${finalVersion} only.`);
+            const targetVersion = list[list.length-1].targetVersion;
+            if(targetVersion != version) return console.log(`It is possible to rolback till version ${targetVersion} only.`);
 
             console.log('Applying rollback migrations...');   
             
             for(let migration of list){
                 try{
                     await adapter.down(migration);
-                    console.log(` - v.${migration.id}: OK`);
+                    console.log(` - v.${migration.version}: OK`);
                 }catch(err){
-                    console.log(` - v.${migration.id}: (!) Fail: ${err.message}`);
+                    console.log(` - v.${migration.version}: (!) Fail: ${err.message}`);
                     return console.log(`Rollback aborted!`);
                 }
             }
@@ -105,12 +105,12 @@ export async function init(options){
 
             console.log('Restoring migrations from database...');
             for(let m of data.applied){
-                const migration = await adapter.get(m.id);
+                const migration = await adapter.get(m.version);
                 try{
                     const file = await saveMigration(params.dir,migration.data);
-                    console.log(` - v.${migration.id}: ${file} - OK`);
+                    console.log(` - v.${migration.version}: ${file} - OK`);
                 }catch(err){
-                    console.log(` - v.${migration.id}: (!) Fail: ${err.message}`);
+                    console.log(` - v.${migration.version}: (!) Fail: ${err.message}`);
                 }
             }
             return console.log(`Restoration finished!`);
@@ -154,7 +154,7 @@ async function loadMigrationsData(adapter,options){
    const applied = await adapter.list();
    
    //current DB version
-   const version = applied.reduce((prev,cur)=>prev>cur.id?prev:cur.id,0);
+   const version = applied.reduce((prev,cur)=>prev>cur.version?prev:cur.version,0);
 
    return {
        local,
@@ -174,7 +174,7 @@ function validate(data){
         for(let migration of data.applied){
 
             let error = null;
-            const localMigration = data.local.find(m => m.id == migration.id);
+            const localMigration = data.local.find(m => m.version == migration.version);
 
             if(localMigration){
                 if(localMigration.up.md5 != migration.md5) error = "Hash code mismatch";
@@ -184,7 +184,7 @@ function validate(data){
 
             if(error) {
                 result.valid = false;
-                result.invalidMigrations.push({id:migration.id,error});
+                result.invalidMigrations.push({version:migration.version,error});
             }
         }
 
@@ -192,8 +192,8 @@ function validate(data){
 }
 
 function getUpMigrations(data){
-    return data.local.filter(m => m.id > data.version).map(m => ({
-        id:m.id,
+    return data.local.filter(m => m.version > data.version).map(m => ({
+        version:m.version,
         md5:m.up.md5,
         queries:m.up.queries,
         data:m.data,
@@ -205,12 +205,12 @@ function getDownMigrations(version,data){
 
     for(let i = data.local.length-1; i >= 0; i--){
         const m = data.local[i];
-        const next = data.local[i-1];
-        if(m.id <= version || !m.down) break;
+        const prev = data.local[i-1];
+        if(m.version <= version || !m.down) break;
         result.push({
-            id:m.id,
+            version:m.version,
             queries: m.down.queries,
-            version: (next && next.id) || 0
+            targetVersion: (prev && prev.version) || 0
         })
     }
     return result;

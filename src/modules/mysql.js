@@ -9,49 +9,49 @@ export default function(options){
 
     return {
         /** execute UP query */
-        up: async ({id,queries,md5,data}) => {
+        up: async ({version,queries,md5,data}) => {
             for(let query of queries){
                 await conn.query(query);
             }
-            await conn.query(`INSERT INTO ${store} (id,md5,data) VALUES (?,?,?)`,[id,md5,data]);
+            await conn.query(`INSERT INTO ${store} (version,md5,data) VALUES (?,?,?)`,[version,md5,data]);
         },
 
         /** execute DOWN query */
-        down: async ({id,queries}) => {
+        down: async ({version,queries}) => {
             for(let query of queries){
                 await conn.query(query);
             }
-            await conn.query(`DELETE FROM ${store} WHERE id=?`,[id]);
+            await conn.query(`DELETE FROM ${store} WHERE version=?`,[version]);
         },
 
         /** prepare store */
         init: async ()=>{
             await conn.query(`
                 CREATE TABLE IF NOT EXISTS ${store} (
-                    id int,
+                    version int,
                     md5 varchar(32),
                     data TEXT,
-                    PRIMARY KEY(id)
+                    PRIMARY KEY(version)
                 );
            `);
         },
 
-        /** return current list of already applied migrations [{id,md5}]*/
+        /** return current list of already applied migrations [{version,md5}]*/
         list: async ()=>{
             try{
                 return await conn.query(`
-                    SELECT id,md5 FROM ${store};
+                    SELECT version,md5 FROM ${store};
                 `);
             }catch{
                 return []
             }
         },
 
-        /** Return migration object by id {id,md5,data} */
-        get: async (id) => {
+        /** Return migration object by version {version,md5,data} */
+        get: async (version) => {
             const result = await conn.query(`
-                SELECT * FROM ${store} WHERE id=?;
-            `,[id]);
+                SELECT * FROM ${store} WHERE version=?;
+            `,[version]);
             return result.length ? result[0] : null;
         }
     }

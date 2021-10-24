@@ -16,7 +16,7 @@ export async function parseSQLMigrations(dir,options){
     for(let file of list){
         const match = file.match(/^(\d+).*\.sql/i);
         if(!match) continue;
-        const id = Number(match[1]);
+        const version = Number(match[1]);
 
         const filepath = path.join(dir,file);
         const body = await fs.readFile(filepath,'utf8');
@@ -33,7 +33,7 @@ export async function parseSQLMigrations(dir,options){
         if(parts.length > 2) throw Error('Syntax error in migration '+file+'. Too many DOWN separators.');
                             
         result.push({
-            id,
+            version,
             up: {
                 queries: parts[0],
                 md5: md5(parts[0].join(';'))
@@ -45,7 +45,7 @@ export async function parseSQLMigrations(dir,options){
         });
     }
 
-    return result.sort((mA,mB)=>(mA.id-mB.id));
+    return result.sort((mA,mB)=>(mA.version-mB.version));
 }
 
 export async function saveMigration(dir,data){
