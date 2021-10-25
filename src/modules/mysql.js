@@ -43,6 +43,7 @@ export default function(options){
                     SELECT version,md5 FROM ${store};
                 `);
             }catch{
+                console.log('catched')
                 return []
             }
         },
@@ -59,7 +60,8 @@ export default function(options){
 
 function universalConnection(conn){
     // Mysql2 Promise Connection
-    if(conn.constructor.name  == 'PromiseConnection') return {
+    console.log(conn.constructor.name)
+    if(['PromiseConnection','PromisePool'].includes(conn.constructor.name)) return {
         query: async (query,params)=>(await conn.query(query,params))[0],
     }
 
