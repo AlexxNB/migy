@@ -13,7 +13,7 @@ export interface Adapter {
     down: (migration: Migration)=>Promise<void>
 }
 
-export type AdapterCreator = (options:MigyConfig)=>Promise<Adaptor>;
+export type AdapterCreator = (options:MigyConfig)=>Promise<Adapter>;
 
 export interface MigyConfig {
     /** Existed DB connection coressponding with used adapter */
@@ -37,10 +37,10 @@ interface Migrator {
     /** Rollback databse to specified version */
     rollback: (version?:number)=>Promise<void>,
     /** Restore migrations files from database */
-    restore: (options:RestoreConfig)=>Promise<void>,
+    restore: (options?:RestoreConfig)=>Promise<void>,
 }
 
 /** Initialize migration methods */
-export function init(MigyConfig): Promise<Migrator>
+export function init(options: MigyConfig): Promise<Migrator>
 /** Initialize CLI application */
-export function cli(MigyConfig): Promise<void>
+export function cli(options: MigyConfig): Promise<void>
