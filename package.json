@@ -4,6 +4,7 @@
   "description": "Easy migration tool for databases",
   "main": "dist/migy.js",
   "module": "dist/migy.es.js",
+  "types": "index.d.ts",
   "scripts": {
     "build": "node esbuild",
     "pretest": "npm run build -- --dev",
