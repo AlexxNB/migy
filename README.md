@@ -75,7 +75,7 @@ migrations
   └─ 42.sql
 ```
 
-Also you can add some text after version or leading zeros:
+Also you can add some additional text or leading zeros:
 
 ```
 migrations
@@ -98,7 +98,7 @@ CREATE TABLE things (id INT,thing TEXT);
 INSERT INTO things (id,thing) VALUES (1,'apple');
 ```
 
-Also you can add rollback queries using `### ROLBACK` or `### DOWN` separator on blank line. These queries will be ran in case of lowering database version. 
+Also you can add rollback queries using `### ROLLBACK` or `### DOWN` separator on blank line. These queries will be ran in case of lowering database version. 
 
 ```sql
 CREATE TABLE things (id INT,thing TEXT);
